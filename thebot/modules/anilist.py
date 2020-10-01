@@ -1,38 +1,11 @@
 import math
 import time
-import requests
 import json
 import asyncio
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from thebot import dankbot
-from Pymoe import Anilist
-
-
-@dankbot.on_message(filters.command('sanime'))
-async def anime(_, message):
-   query = message.text.split(None, 1)
-   instance = Anilist()
-   r = instance.search.anime(query[1])
-   if "data" in r.keys():
-      pic = f'{r["data"]["Page"]["media"][0]["coverImage"]["large"]}'
-      anime_id = f'{r["data"]["Page"]["media"][0]["id"]}'
-      info = f'{r["data"]["Page"]["media"][0]["title"]["romaji"]}\n'
-      info += f'{r["data"]["Page"]["media"][0]["title"]["english"]}\n'
-      info += f'• Rating: {r["data"]["Page"]["media"][0]["averageScore"]}\n'
-      info += f'• Popularity: {r["data"]["Page"]["media"][0]["popularity"]}\n'
-      info += f'• Episodes: {r["data"]["Page"]["media"][0]["episodes"]}\n'
-      info += f'• Season: {r["data"]["Page"]["media"][0]["season"]}\n'
-      info += f'• Adult: {r["data"]["Page"]["media"][0]["isAdult"]}\n'
-      url = 'https://anilist.co/anime/'+ anime_id
-      button = [[InlineKeyboardButton("Read more", url=url)]]
-      if not pic:
-         await message.reply_text(info, reply_markup=InlineKeyboardMarkup(button))
-      else:
-         await message.reply_photo(pic, caption=info, reply_markup=InlineKeyboardMarkup(button))
-   else:
-      await message.reply_text('cannot reach Anilist API')
-
+from thebot.helpers.sauce import airing, anime, character, manga
 
 
 
@@ -67,120 +40,6 @@ def t(milliseconds: int) -> str:
     return tmp[:-2]
 
 
-airing_query = '''
-    query ($id: Int,$search: String) { 
-      Media (id: $id, type: ANIME,search: $search) { 
-        id
-        episodes
-        title {
-          romaji
-          english
-          native
-        }
-        nextAiringEpisode {
-           airingAt
-           timeUntilAiring
-           episode
-        } 
-      }
-    }
-    '''
-
-fav_query = """
-query ($id: Int) { 
-      Media (id: $id, type: ANIME) { 
-        id
-        title {
-          romaji
-          english
-          native
-        }
-     }
-}
-"""
-
-anime_query = '''
-   query ($id: Int,$search: String) { 
-      Media (id: $id, type: ANIME,search: $search) { 
-        id
-        title {
-          romaji
-          english
-          native
-        }
-        description (asHtml: false)
-        startDate{
-            year
-          }
-          episodes
-          season
-          type
-          format
-          status
-          duration
-          siteUrl
-          studios{
-              nodes{
-                   name
-              }
-          }
-          trailer{
-               id
-               site 
-               thumbnail
-          }
-          averageScore
-          genres
-          bannerImage
-      }
-    }
-'''
-character_query = """
-    query ($query: String) {
-        Character (search: $query) {
-               id
-               name {
-                     first
-                     last
-                     full
-               }
-               siteUrl
-               image {
-                        large
-               }
-               description
-        }
-    }
-"""
-
-manga_query = """
-query ($id: Int,$search: String) { 
-      Media (id: $id, type: MANGA,search: $search) { 
-        id
-        title {
-          romaji
-          english
-          native
-        }
-        description (asHtml: false)
-        startDate{
-            year
-          }
-          type
-          format
-          status
-          siteUrl
-          averageScore
-          genres
-          bannerImage
-      }
-    }
-"""
-
-
-url = 'https://graphql.anilist.co'
-
-
 @dankbot.on_message(filters.command("airing"))
 async def anime_airing(_client, message):
     search_str = message.text.split(' ', 1)
@@ -188,16 +47,15 @@ async def anime_airing(_client, message):
         await message.reply_text('Provide anime name!')
         return
     variables = {'search': search_str[1]}
-    response = requests.post(
-        url, json={'query': airing_query, 'variables': variables}).json()['data']['Media']
-    ms_g = f"**Name**: **{response['title']['romaji']}**(`{response['title']['native']}`)\n**ID**: `{response['id']}`"
+    response = await airing(variables)
+    m = f"**Name**: **{response['title']['romaji']}**(`{response['title']['native']}`)\n**ID**: `{response['id']}`"
     if response['nextAiringEpisode']:
         airing_time = response['nextAiringEpisode']['timeUntilAiring'] * 1000
         airing_time_final = t(airing_time)
-        ms_g += f"\n**Episode**: `{response['nextAiringEpisode']['episode']}`\n**Airing In**: `{airing_time_final}`"
+        m += f"\n**Episode**: `{response['nextAiringEpisode']['episode']}`\n**Airing In**: `{airing_time_final}`"
     else:
-        ms_g += f"\n**Episode**:{response['episodes']}\n**Status**: `N/A`"
-    await message.reply_text(ms_g)
+        m += f"\n**Episode**:{response['episodes']}\n**Status**: `N/A`"
+    await message.reply_text(m)
 
 
 @dankbot.on_message(filters.command("anime"))
@@ -206,11 +64,8 @@ async def anime_search(client, message):
     if len(search) == 1:
         await message.delete()
         return
-    else:
-        search = search[1]
-    variables = {'search': search}
-    json = requests.post(url, json={'query': anime_query, 'variables': variables}).json()[
-        'data'].get('Media', None)
+    variables = {'search': search[1]}
+    json = await anime(variables)
     if json:
         msg = f"**{json['title']['romaji']}**(`{json['title']['native']}`)\n**Type**: {json['format']}\n**Status**: {json['status']}\n**Episodes**: {json.get('episodes', 'N/A')}\n**Duration**: {json.get('duration', 'N/A')} Per Ep.\n**Score**: {json['averageScore']}\n**Genres**: `"
         for x in json['genres']:
@@ -237,17 +92,13 @@ async def anime_search(client, message):
                     InlineKeyboardButton("Trailer 🎬", url=trailer)]
                     ]
         else:
-           buttons = [
+            buttons = [
                     [InlineKeyboardButton("More Info", url=info)]
                     ]
         if image:
-            try:
-                await message.reply_photo(image, caption=msg, reply_markup=InlineKeyboardMarkup(buttons))
-            except:
-                msg += f" [〽️]({image})"
-                await message.edit(msg)
+            await message.reply_photo(image, caption=msg, reply_markup=InlineKeyboardMarkup(buttons))
         else:
-            await message.edit(msg)
+            await message.reply(msg)
 
 
 
@@ -257,10 +108,8 @@ async def character_search(client, message):
     if len(search) == 1:
         await message.delete()
         return
-    search = search[1]
-    variables = {'query': search}
-    json = requests.post(url, json={'query': character_query, 'variables': variables}).json()[
-        'data'].get('Character', None)
+    variables = {'query': search[1]}
+    json = await character(variables)
     if json:
         ms_g = f"**{json.get('name').get('full')}**(`{json.get('name').get('native')}`)\n"
         description = f"{json['description']}"
@@ -271,7 +120,7 @@ async def character_search(client, message):
             image = image.get('large')
             await message.reply_photo(image, caption=ms_g)
         else:
-            await edrep(message, text=ms_g)
+            await message.reply(ms_g)
 
 
 @dankbot.on_message(filters.command("manga"))
@@ -282,8 +131,7 @@ async def manga_search(client, message):
         return
     search = search[1]
     variables = {'search': search}
-    json = requests.post(url, json={'query': manga_query, 'variables': variables}).json()[
-        'data'].get('Media', None)
+    json = await manga(variables)
     ms_g = ''
     if json:
         title, title_native = json['title'].get(
@@ -304,15 +152,10 @@ async def manga_search(client, message):
         for x in json.get('genres', []):
             ms_g += f"{x}, "
         ms_g = ms_g[:-2]
-
         image = json.get("bannerImage", False)
         ms_g += f"_{json.get('description', None)}_"
         if image:
-            try:
-                await message.reply_photo(image, caption=ms_g)
-            except:
-                ms_g += f" [〽️]({image})"
-                await edrep(message, text=ms_g)
+            await message.reply_photo(image, caption=ms_g)
         else:
-            await edrep(message, text=ms_g)
+            await message.reply(ms_g)
 

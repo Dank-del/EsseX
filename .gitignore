@@ -134,3 +134,4 @@ dmypy.json
 
 #config
 thebot/config.py
+*.session
