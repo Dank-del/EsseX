@@ -15,8 +15,8 @@ async def anime(_, message):
    instance = Anilist()
    r = instance.search.anime(query[1])
    if "data" in r.keys():
-      pic = f'{r["data"]["Page"]["media"][0]["coverImage"]["large"]}'
       anime_id = f'{r["data"]["Page"]["media"][0]["id"]}'
+      pic = 'https://img.anili.st/media/'+ anime_id
       info = f'{r["data"]["Page"]["media"][0]["title"]["romaji"]}\n'
       info += f'{r["data"]["Page"]["media"][0]["title"]["english"]}\n'
       info += f'• Rating: {r["data"]["Page"]["media"][0]["averageScore"]}\n'
