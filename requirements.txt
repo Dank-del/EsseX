@@ -2,3 +2,4 @@ pyrogram
 tgcrypto
 pymoe
 requests
+aiohttp
