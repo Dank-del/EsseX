@@ -129,15 +129,22 @@ async def anilist_chosen(client, inline_result):
                         all_anilists[query] = (await resp.json())['data']['Page']['media']
             return
     inline_result.continue_propagation()
-
+    
+    
+callback_lock = asyncio.Lock()
+callback_info = dict()
 @dankbot.on_callback_query(filters.regex('anilist_(back|next)$'))
 async def anilist_move(client, callback_query):
-    async with message_lock:
-        if callback_query.inline_message_id not in message_info:
-            await callback_query.answer('This message is too old', cache_time=3600, show_alert=True)
-            return
-        elif user_id != callback_query.from_user.id:
-            await callback_query.answer('Yamerooooo', cache_time=3600)
+    message = callback_query.message
+    message_identifier = callback_query.inline_message_id
+    if message_identifier not in callback_info:
+        await callback_query.answer('This message is too old.', show_alert=True, cache_time=3600)
+        return
+    async with callback_lock:
+        info = callback_info.get((message.chat.id, message.message_id))
+        user_id, location = info
+        if user_id != callback_query.from_user.id:
+            await callback_query.answer('Yameroooooo', cache_time=3600)
             return
         query, page = message_info[callback_query.inline_message_id]
         opage = page
