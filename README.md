@@ -5,7 +5,8 @@ A telegram bot to fetch anime, character and manga info.
 *Credits*
 - me (lol)
 - [DragSama](https://github.com/DragSama) for anime query and formatting idea.
-
+- [TheBlankX](https://github.com/the-blank-x) for inline anilist and tracemoe plugin.
+- [Wackyator](https://github.com/Wackyator) for nhentai module.
 
 *How to run this bot*
 - `git clone https://github.com/Dank-del/EsseX`
