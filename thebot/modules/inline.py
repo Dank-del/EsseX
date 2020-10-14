@@ -136,6 +136,9 @@ async def anilist_move(client, callback_query):
         if callback_query.inline_message_id not in message_info:
             await callback_query.answer('This message is too old', cache_time=3600, show_alert=True)
             return
+        elif user_id != callback_query.from_user.id:
+            await callback_query.answer('Yamerooooo', cache_time=3600)
+            return
         query, page = message_info[callback_query.inline_message_id]
         opage = page
         if callback_query.matches[0].group(1) == 'back':
