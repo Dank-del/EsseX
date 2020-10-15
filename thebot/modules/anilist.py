@@ -34,8 +34,6 @@ async def anime(_, message):
       await message.reply_text('cannot reach Anilist API')
 
 
-
-
 def shorten(description, info='anilist.co'):
     ms_g = ""
     if len(description) > 700:
@@ -181,7 +179,7 @@ query ($id: Int,$search: String) {
 url = 'https://graphql.anilist.co'
 
 
-@dankbot.on_message(filters.command("airing"))
+@dankbot.on_message(filters.command("airinfo"))
 async def anime_airing(_client, message):
     search_str = message.text.split(' ', 1)
     if len(search_str) == 1:
@@ -200,7 +198,7 @@ async def anime_airing(_client, message):
     await message.reply_text(ms_g)
 
 
-@dankbot.on_message(filters.command("anime"))
+@dankbot.on_message(filters.command("animeinfo"))
 async def anime_search(client, message):
     search = message.text.split(' ', 1)
     if len(search) == 1:
@@ -230,7 +228,7 @@ async def anime_search(client, message):
         description = json.get(
             'description', 'N/A').replace('<i>', '').replace('</i>', '').replace('<br>', '')
         msg += shorten(description, info)
-        image = json.get('bannerImage', None)
+        image = info.replace('anilist.co/anime/', 'img.anili.st/media/')
         if trailer:
             buttons = [
                     [InlineKeyboardButton("More Info", url=info),
@@ -251,7 +249,7 @@ async def anime_search(client, message):
 
 
 
-@dankbot.on_message(filters.command("character"))
+@dankbot.on_message(filters.command("charinfo"))
 async def character_search(client, message):
     search = message.text.split(' ', 1)
     if len(search) == 1:
@@ -274,7 +272,7 @@ async def character_search(client, message):
             await edrep(message, text=ms_g)
 
 
-@dankbot.on_message(filters.command("manga"))
+@dankbot.on_message(filters.command("mangainfo"))
 async def manga_search(client, message):
     search = message.text.split(' ', 1)
     if len(search) == 1:
