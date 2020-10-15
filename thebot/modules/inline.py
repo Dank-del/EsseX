@@ -9,6 +9,7 @@ from pyrogram import errors, __version__
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputTextMessageContent, InlineQueryResultArticle, InlineQueryResultPhoto
 from pyrogram.errors import PeerIdInvalid
 from thebot.modules.anilist import url, anime_query, shorten
+from thebot.modules.nhentai import nhentai, nhentai_data
 
 import aiohttp
 
@@ -38,8 +39,33 @@ class AioHttp:
 async def inline_query_handler(client, query):
     string = query.query.lower()
     answers = []
-    
-    if string.split()[0] == "anime":
+    if string.split()[0] == "nhentai":
+        query = string.split(None, 1)[1]
+        n_title, tags, artist, total_pages, post_url, cover_image = nhentai_data(query)
+        reply_message = f"<code>{n_title}</code>\n\n<b>Tags:</b>\n{tags}\n<b>Artists:</b>\n{artist}\n<b>Pages:</b>\n{total_pages}"
+        await inline_query.answer( 
+        results=[
+                InlineQueryResultArticle(
+                        title=n_title,
+                        input_message_content=InputTextMessageContent(
+                            reply_message
+                        ),
+                        description=tags,
+                        thumb_url=cover_image,
+                        reply_markup=InlineKeyboardMarkup(
+                            [[
+                            InlineKeyboardButton(
+                                "Read Here",
+                                url=post_url
+                                )
+                            ]]
+                        )
+                    )
+                ],
+                cache_time=1
+            )
+        
+    elif string.split()[0] == "anime":
         if len(string.split()) == 1:
             await client.answer_inline_query(query.id,
                                             results=answers,

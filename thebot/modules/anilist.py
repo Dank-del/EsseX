@@ -6,33 +6,6 @@ import asyncio
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from thebot import dankbot
-from Pymoe import Anilist
-
-
-@dankbot.on_message(filters.command('sanime'))
-async def anime(_, message):
-   query = message.text.split(None, 1)
-   instance = Anilist()
-   r = instance.search.anime(query[1])
-   if "data" in r.keys():
-      anime_id = f'{r["data"]["Page"]["media"][0]["id"]}'
-      pic = 'https://img.anili.st/media/'+ anime_id
-      info = f'{r["data"]["Page"]["media"][0]["title"]["romaji"]}\n'
-      info += f'{r["data"]["Page"]["media"][0]["title"]["english"]}\n'
-      info += f'• Rating: {r["data"]["Page"]["media"][0]["averageScore"]}\n'
-      info += f'• Popularity: {r["data"]["Page"]["media"][0]["popularity"]}\n'
-      info += f'• Episodes: {r["data"]["Page"]["media"][0]["episodes"]}\n'
-      info += f'• Season: {r["data"]["Page"]["media"][0]["season"]}\n'
-      info += f'• Adult: {r["data"]["Page"]["media"][0]["isAdult"]}\n'
-      url = 'https://anilist.co/anime/'+ anime_id
-      button = [[InlineKeyboardButton("Read more", url=url)]]
-      if not pic:
-         await message.reply_text(info, reply_markup=InlineKeyboardMarkup(button))
-      else:
-         await message.reply_photo(pic, caption=info, reply_markup=InlineKeyboardMarkup(button))
-   else:
-      await message.reply_text('cannot reach Anilist API')
-
 
 def shorten(description, info='anilist.co'):
     ms_g = ""
