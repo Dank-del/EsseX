@@ -67,13 +67,13 @@ def nhentai_data(noombers):
     total_pages = res['num_pages']
     post_content = ""
 
+    extensions = {
+        'j':'jpg',
+        'p':'png',
+        'g':'gif'
+    }
     for i, x in enumerate(pages):
         media_id = res["media_id"]
-        extensions = {
-            'j':'jpg',
-            'p':'png',
-            'g':'gif'
-        }
         temp = x['t']
         file = f"{i+1}.{extensions[temp]}"
         link = f"https://i.nhentai.net/galleries/{media_id}/{file}"
@@ -90,7 +90,7 @@ def nhentai_data(noombers):
 
     for link in links:
         post_content+=f"<img src={link}><br>"
-    
+
     post = telegraph.create_page(
         f"{title}",
         html_content=post_content
