@@ -3,6 +3,7 @@ class Config(object):
    API_ID = 69
    API_HASH = "owo"
    TOKEN = "uwu"
+   DB_URI = ""
 
 class Development(Config):
    TEST_DEVELOP = True

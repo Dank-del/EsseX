@@ -9,6 +9,7 @@ from decimal import Decimal
 from urllib.parse import quote as urlencode
 from pyrogram import Client, filters
 from thebot import dankbot
+
 session = aiohttp.ClientSession()
 @dankbot.on_message(filters.command(['trace', 'tracemoe', 'whatanime', 'wa', 'wait']))
 async def whatanime(client, message):
@@ -79,7 +80,7 @@ async def whatanime(client, message):
                         await reply.reply_text('Cannot send preview :/')
             await asyncio.gather(reply.edit_text(text, disable_web_page_preview=True), _send_preview())
 
-progress_callback_data = dict()
+progress_callback_data = {}
 async def progress_callback(current, total, reply):
     message_identifier = (reply.chat.id, reply.message_id)
     last_edit_time, prevtext, start_time = progress_callback_data.get(message_identifier, (0, None, time.time()))

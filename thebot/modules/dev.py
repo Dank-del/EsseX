@@ -114,9 +114,8 @@ async def terminal(client, message):
         output = None
     if output:
         if len(output) > 4096:
-            file = open("nana/cache/output.txt", "w+")
-            file.write(output)
-            file.close()
+            with open("nana/cache/output.txt", "w+") as file:
+                file.write(output)
             await client.send_document(message.chat.id, "nana/cache/output.txt", reply_to_message_id=message.message_id,
                                     caption="`Output file`")
             os.remove("nana/cache/output.txt")
