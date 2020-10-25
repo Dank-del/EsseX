@@ -1,11 +1,11 @@
-import os
-import sys
-import time
 import logging
 
 from telegraph import Telegraph
 from thebot.config import Config
 from pyrogram import Client, errors
+
+logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
+                    level=logging.INFO)
 
 telegraph = Telegraph()
 telegraph.create_account(short_name='dank')
