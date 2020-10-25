@@ -9,7 +9,7 @@ from pyrogram.types import (InlineKeyboardMarkup,
 
 from thebot import dankbot, telegraph
 
-@dankbot.on_message(filters.command('nhentai'))
+@dankbot.on_message(~filters.me & filters.command('nhentai', prefixes='/'), group=8)
 async def nhentai(client, message):
     query = message.text.split(" ")[1]
     title, tags, artist, total_pages, post_url, cover_image = nhentai_data(query)

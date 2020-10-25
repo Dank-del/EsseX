@@ -11,7 +11,7 @@ from pyrogram import Client, filters
 from thebot import dankbot
 
 session = aiohttp.ClientSession()
-@dankbot.on_message(filters.command(['trace', 'tracemoe', 'whatanime', 'wa', 'wait']))
+@dankbot.on_message(~filters.me & filters.command('wa', prefixes='/'), group=8)
 async def whatanime(client, message):
     media = message.photo or message.animation or message.video or message.document
     if not media:

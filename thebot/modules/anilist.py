@@ -152,7 +152,7 @@ query ($id: Int,$search: String) {
 url = 'https://graphql.anilist.co'
 
 
-@dankbot.on_message(filters.command("airinfo"))
+@dankbot.on_message(~filters.me & filters.command('airinfo', prefixes='/'), group=8)
 async def anime_airing(_client, message):
     search_str = message.text.split(' ', 1)
     if len(search_str) == 1:
@@ -171,7 +171,7 @@ async def anime_airing(_client, message):
     await message.reply_text(ms_g)
 
 
-@dankbot.on_message(filters.command("animeinfo"))
+@dankbot.on_message(~filters.me & filters.command('animeinfo', prefixes='/'), group=8)
 async def anime_search(client, message):
     search = message.text.split(' ', 1)
     if len(search) == 1:
@@ -222,7 +222,7 @@ async def anime_search(client, message):
 
 
 
-@dankbot.on_message(filters.command("charinfo"))
+@dankbot.on_message(~filters.me & filters.command('charinfo', prefixes='/'), group=8)
 async def character_search(client, message):
     search = message.text.split(' ', 1)
     if len(search) == 1:
@@ -245,7 +245,7 @@ async def character_search(client, message):
             await edrep(message, text=ms_g)
 
 
-@dankbot.on_message(filters.command("mangainfo"))
+@dankbot.on_message(~filters.me & filters.command('mangainfo', prefixes='/'), group=8)
 async def manga_search(client, message):
     search = message.text.split(' ', 1)
     if len(search) == 1:
