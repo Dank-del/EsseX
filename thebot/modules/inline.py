@@ -38,13 +38,46 @@ class AioHttp:
 @dankbot.on_inline_query()
 async def inline_query_handler(client, query):
     string = query.query.lower()
+    if string == "":
+        await client.answer_inline_query(query.id,
+            results=[
+                InlineQueryResultPhoto(
+                    caption="Heyya, Try me in Inline by Pressing thsese buttons below",
+                    photo_url="https://telegra.ph/file/19dad86d7b1009f1d6911.jpg",
+                    parse_mode="markdown",
+                    title=f"Need Help?",
+                    description=f"Click Here..",
+                    reply_markup=InlineKeyboardMarkup(
+                        [[
+                        InlineKeyboardButton("Anime", switch_inline_query_current_chat="anime "),
+                        InlineKeyboardButton("Manga", switch_inline_query_current_chat="manga "),
+                        InlineKeyboardButton("nHentai", switch_inline_query_current_chat="nhentai ")
+                        ],
+                        [
+                        InlineKeyboardButton(text="Help", url="https://t.me/AnimeSearchRobot?start=help")
+                        ]]
+                    )
+                ),
+            ],
+            switch_pm_text="Click here to Switch to PM",
+            switch_pm_parameter="start",
+            cache_time=300
+        )
+
     answers = []
     if string.split()[0] == "nhentai":
-        query = string.split(None, 1)[1]
-        n_title, tags, artist, total_pages, post_url, cover_image = nhentai_data(query)
+        if len(string.split()) == 1:
+            await client.answer_inline_query(query.id,
+                                            results=answers,
+                                            switch_pm_text="Enter nHentai ID",
+                                            switch_pm_parameter="start"
+                                            )
+            return
+        squery = string.split(None, 1)[1]
+        n_title, tags, artist, total_pages, post_url, cover_image = nhentai_data(squery)
         reply_message = f"<code>{n_title}</code>\n\n<b>Tags:</b>\n{tags}\n<b>Artists:</b>\n{artist}\n<b>Pages:</b>\n{total_pages}"
-        await inline_query.answer( 
-        results=[
+        await client.answer_inline_query(query.id,
+            results=[
                 InlineQueryResultArticle(
                         title=n_title,
                         input_message_content=InputTextMessageContent(
@@ -61,15 +94,16 @@ async def inline_query_handler(client, query):
                             ]]
                         )
                     )
-                ],
-                cache_time=1
-            )
+            ],
+            cache_time=1
+        )
         
     elif string.split()[0] == "anime":
         if len(string.split()) == 1:
             await client.answer_inline_query(query.id,
                                             results=answers,
-                                            switch_pm_text="Search an Anime"
+                                            switch_pm_text="Search an Anime",
+                                            switch_pm_parameter="start"
                                             )
             return
         search = string.split(None, 1)[1]
@@ -79,6 +113,7 @@ async def inline_query_handler(client, query):
                 r = await resp.json()
                 json = r['data'].get('Media', None)
                 if json:
+                    mal_id = int(json.get('idMal'))
                     msg = f"**{json['title']['romaji']}** (`{json['title']['native']}`)\n**Type**: {json['format']}\n**Status**: {json['status']}\n**Episodes**: {json.get('episodes', 'N/A')}\n**Duration**: {json.get('duration', 'N/A')} Per Ep.\n**Score**: {json['averageScore']}\n**Genres**: `"
                     for x in json['genres']: 
                         msg += f"{x}, "
@@ -88,6 +123,7 @@ async def inline_query_handler(client, query):
                         msg += f"{x['name']}, " 
                     msg = msg[:-2] + '`\n'
                     info = json.get('siteUrl')
+                    mal_link = f"https://myanimelist.net/anime/{mal_id}"
                     trailer = json.get('trailer', None)
                     if trailer:
                         trailer_id = trailer.get('id', None)
@@ -97,9 +133,9 @@ async def inline_query_handler(client, query):
                     msg += shorten(description, info)
                     image = info.replace('anilist.co/anime/', 'img.anili.st/media/')
                     if trailer:
-                        buttons = [[InlineKeyboardButton("More Info", url=info), InlineKeyboardButton("Trailer 🎬", url=trailer)]]
+                        buttons = [[InlineKeyboardButton("Anilist", url=info), InlineKeyboardButton("MAL", url=mal_link)], [InlineKeyboardButton("Trailer 🎬", url=trailer)]]
                     else:
-                        buttons = [[InlineKeyboardButton("More Info", url=info),
+                        buttons = [[InlineKeyboardButton("Anilist", url=info), InlineKeyboardButton("MAL", url=mal_link)
                                     ]]
                     if image:
                         answers.append(InlineQueryResultPhoto(
@@ -107,17 +143,18 @@ async def inline_query_handler(client, query):
                             photo_url=image,
                             parse_mode="markdown",
                             title=f"{json['title']['romaji']}",
-                            description=f"{json['format']}",
+                            description=f"{json['format']} | {json.get('episodes', 'N/A')} Episode{'s' if len(str(json.get('episodes'))) > 1 else ''}",
                             reply_markup=InlineKeyboardMarkup(buttons)))
                     else:
                         answers.append(InlineQueryResultArticle(
                             title=f"{json['title']['romaji']}",
-                            description=f"{json['averageScore']}",
-                            input_message_content=InputTextMessageContent(msg, parse_mode="markdown", disable_web_page_preview=True),
+                            description=f"{json['format']} | {json.get('episodes', 'N/A')} Episode{'s' if len(str(json.get('episodes'))) > 1 else ''}",
+                            input_message_content=InputTextMessageContent(msg, parse_mode="md", disable_web_page_preview=True),
                             reply_markup=InlineKeyboardMarkup(buttons)))
         await client.answer_inline_query(query.id,
                                         results=answers,
-                                        cache_time=0
+                                        cache_time=0,
+                                        is_gallery=False
                                         )
     elif string.split()[0] == "manga":
         if len(string.split()) == 1:
