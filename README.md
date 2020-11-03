@@ -8,7 +8,7 @@ A telegram bot to fetch anime, character and manga info.
 - [Pokurt](https://github.com/pokurt) for database part.
 - [TheBlankX](https://github.com/the-blank-x) for inline anilist and tracemoe plugin.
 - [Wackyator](https://github.com/Wackyator) for nhentai module.
-- [JyothisJayanth](https://github.com/JyothisJayanth) for improving the entire bot's inline part.
+- [√ʷʀᴇɴᴄʰ⭞](https://github.com/JyothisJayanth) for improving the entire bot's inline part.
 
 
 *How to run this bot*
