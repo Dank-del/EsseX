@@ -1,9 +1,33 @@
-from pyrogram import filters
 from thebot import dankbot
+from pyrogram import filters
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 @dankbot.on_message(filters.command('start'))
-async def start(_, message): 
-   photo = "https://telegra.ph/file/19dad86d7b1009f1d6911.jpg"
-   await message.reply_photo(
-      photo,
-      caption='Hi, uwu >//////<\n Do `/help` to know what I can do ;)\n Use `@TheEsseXBot anime <anime name>` for inline search.')
+async def start(_, message):
+   if len(message.text.split()) >= 2:
+      suckz = message.text.split()[1]
+      if suckz == "help":
+         buttons = [
+                     [
+                        InlineKeyboardButton('Anime', switch_inline_query_current_chat='anime '),
+                        InlineKeyboardButton('Manga', switch_inline_query_current_chat='manga '),
+                        InlineKeyboardButton('nHentai', switch_inline_query_current_chat='nhentai ')
+                     ]
+                  ]   
+         await message.reply_text('Available cmds for now :\n /animeinfo - search anime on AniList\n /mangainfo - search manga on Anilist\n /charinfo - search character on Anilist\n /airinfo - check airing status of an anime\n /wa by replying to a media - find what anime a media is from\n /nhentai ID - returns the nhentai in telegraph instant preview format.', reply_markup=InlineKeyboardMarkup(buttons))
+   else:
+      photo = "https://telegra.ph/file/19dad86d7b1009f1d6911.jpg"
+      buttons = [
+         [
+            InlineKeyboardButton('Anime', switch_inline_query_current_chat='anime '),
+            InlineKeyboardButton('Manga', switch_inline_query_current_chat='manga '),
+            InlineKeyboardButton('nHentai', switch_inline_query_current_chat='nhentai ')
+         ],
+         [
+            InlineKeyboardButton('Help', 'help'),
+         ]
+      ]
+      await message.reply_photo(
+         photo,
+         caption='Hi, uwu >//////<\nCheck Help to know what I can do ;)\nSeach in Inline by Clicking these buttons below!',
+         reply_markup=InlineKeyboardMarkup(buttons))
