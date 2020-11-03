@@ -54,7 +54,7 @@ async def inline_query_handler(client, query):
                         InlineKeyboardButton("nHentai", switch_inline_query_current_chat="nhentai ")
                         ],
                         [
-                        InlineKeyboardButton(text="Help", url="https://t.me/AnimeSearchRobot?start=help")
+                        InlineKeyboardButton(text="Help", url="https://t.me/TheEsseXBot?start=help")
                         ]]
                     )
                 ),
