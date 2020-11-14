@@ -5,10 +5,38 @@ import aiohttp
 import asyncio
 import datetime
 import tempfile
-from decimal import Decimal
-from urllib.parse import quote as urlencode
-from pyrogram import Client, filters
 from thebot import dankbot
+from decimal import Decimal
+from datetime import timedelta
+from pyrogram import Client, filters
+from urllib.parse import quote as urlencode
+
+def format_bytes(size):
+    size = int(size)
+    # 2**10 = 1024
+    power = 1024
+    n = 0
+    power_labels = {0 : '', 1: 'K', 2: 'M', 3: 'G', 4: 'T'}
+    while size > power:
+        size /= power
+        n += 1
+    return f"{size:.2f} {power_labels[n]+'B'}"
+
+
+def return_progress_string(current, total):
+    filled_length = int(30 * current // total)
+    return '[' + '=' * filled_length + ' ' * (30 - filled_length) + ']'
+
+
+def calculate_eta(current, total, start_time):
+    if not current:
+        return '00:00:00'
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    seconds = (elapsed_time * (total / current)) - elapsed_time
+    thing = ''.join(str(timedelta(seconds=seconds)).split('.')[:-1]).split(', ')
+    thing[-1] = thing[-1].rjust(8, '0')
+    return ', '.join(thing)
 
 session = aiohttp.ClientSession()
 @dankbot.on_message(~filters.me & filters.command('wa', prefixes='/'), group=8)
