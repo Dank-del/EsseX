@@ -1,18 +1,17 @@
+import os
 import sys
-import traceback
 import random
 import aiohttp
+import requests
+import traceback
+from .anilist import t
 from thebot import dankbot
-import os
 from datetime import datetime
 from pyrogram import errors, __version__
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputTextMessageContent, InlineQueryResultArticle, InlineQueryResultPhoto
 from pyrogram.errors import PeerIdInvalid
-from thebot.modules.anilist import url, anime_query, manga_query, shorten
 from thebot.modules.nhentai import nhentai, nhentai_data
-
-import aiohttp
-
+from thebot.modules.anilist import url, anime_query, manga_query, shorten, airing_query, character_query
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputTextMessageContent, InlineQueryResultArticle, InlineQueryResultPhoto
 
 class AioHttp:
     @staticmethod
@@ -52,6 +51,10 @@ async def inline_query_handler(client, query):
                         InlineKeyboardButton("Anime", switch_inline_query_current_chat="anime "),
                         InlineKeyboardButton("Manga", switch_inline_query_current_chat="manga "),
                         InlineKeyboardButton("nHentai", switch_inline_query_current_chat="nhentai ")
+                        ],
+                        [
+                        InlineKeyboardButton("Airing", switch_inline_query_current_chat="airing "),
+                        InlineKeyboardButton("Character", switch_inline_query_current_chat="char ")
                         ],
                         [
                         InlineKeyboardButton(text="Help", url="https://t.me/TheEsseXBot?start=help")
@@ -202,3 +205,82 @@ async def inline_query_handler(client, query):
                                         cache_time=0,
                                         is_gallery=False
                                         )
+    elif string.split()[0] == "airing":
+        if len(string.split()) == 1:
+            await client.answer_inline_query(query.id,
+                                            results=answers,
+                                            switch_pm_text="Get the Airing Status",
+                                            switch_pm_parameter="start"
+                                            )
+            return
+        search = string.split(None, 1)[1]
+        variables = {'search': search}
+        response = requests.post(
+            url, json={'query': airing_query, 'variables': variables}).json()['data']['Media']
+        info = response['siteUrl']
+        if info:
+            buttons = InlineKeyboardMarkup([[InlineKeyboardButton("More Info", url=info)]])
+        else:
+            buttons = None
+        image = info.replace('anilist.co/anime/', 'img.anili.st/media/')
+        if image:
+            thumb = image
+        else:
+            thumb = None
+        ms_g = f"**Name**: **{response['title']['romaji']}**(`{response['title']['native']}`)\n**ID**: `{response['id']}`"
+        if response['nextAiringEpisode']:
+            airing_time = response['nextAiringEpisode']['timeUntilAiring'] * 1000
+            airing_time_final = t(airing_time)
+            in_des = f"Episode {response['nextAiringEpisode']['episode']} Airing in {airing_time_final}"
+            ms_g += f"\n**Episode**: `{response['nextAiringEpisode']['episode']}`\n**Airing In**: `{airing_time_final}`"
+        else:
+            in_des = "N/A"
+            ms_g += f"\n**Episode**:{response['episodes']}\n**Status**: `N/A`"
+        answers.append(InlineQueryResultArticle(
+            title=f"{response['title']['romaji']}",
+            description=f"{in_des}",
+            input_message_content=InputTextMessageContent(f"{ms_g}[⁠ ⁠]({image})", parse_mode="markdown", disable_web_page_preview=False),
+            reply_markup=buttons,
+            thumb_url=thumb))
+        await client.answer_inline_query(query.id,
+                                        results=answers,
+                                        cache_time=0,
+                                        is_gallery=False
+                                        )
+    elif string.split()[0] == "char":
+        if len(string.split()) == 1:
+            await client.answer_inline_query(query.id,
+                                            results=answers,
+                                            switch_pm_text="Get Character Info",
+                                            switch_pm_parameter="start"
+                                            )
+            return
+        search = string.split(None, 1)[1]
+        variables = {'query': search}
+        json = requests.post(url, json={'query': character_query, 'variables': variables}).json()['data']['Character']
+        if json:
+            ms_g = f"**{json.get('name').get('full')}**(`{json.get('name').get('native')}`)\n❤️ Favourites : {json['favourites']}\n"
+            description = f"{json['description']}"
+            site_url = json.get('siteUrl')
+            ms_g += shorten(description, site_url)
+            image = json.get('image', None)
+            if image:
+                image = image.get('large')
+                answers.append(InlineQueryResultPhoto(
+                    caption=ms_g,
+                    photo_url=image,
+                    parse_mode="markdown",
+                    title=f"{json.get('name').get('full')}",
+                    description=f"❤️{json['favourites']}",
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("More Info", url=site_url)]])))
+            else:
+                answers.append(InlineQueryResultArticle(
+                    title=f"{json.get('name').get('full')}",
+                    description=f"{json['favourites']}",
+                    input_message_content=InputTextMessageContent(ms_g, parse_mode="markdown", disable_web_page_preview=True),
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("More Info", url=site_url)]])))
+            await client.answer_inline_query(query.id,
+                                            results=answers,
+                                            cache_time=0,
+                                            is_gallery=False
+                                            )
