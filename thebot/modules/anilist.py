@@ -48,6 +48,7 @@ airing_query = '''
           english
           native
         }
+        siteUrl
         nextAiringEpisode {
            airingAt
            timeUntilAiring
@@ -117,6 +118,7 @@ character_query = """
                      full
                }
                siteUrl
+               favourites
                image {
                         large
                }
