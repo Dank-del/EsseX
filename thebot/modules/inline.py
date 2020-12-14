@@ -11,30 +11,20 @@ from pyrogram import errors, __version__
 from pyrogram.errors import PeerIdInvalid
 from thebot.modules.nhentai import nhentai, nhentai_data
 from thebot.modules.anilist import url, anime_query, manga_query, shorten, airing_query, character_query
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputTextMessageContent, InlineQueryResultArticle, InlineQueryResultPhoto
+from pyrogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    InputTextMessageContent,
+    InlineQueryResultArticle,
+    InlineQueryResultPhoto
+)
+from thebot.utils.aiohttp_class import AioHttp
 
-class AioHttp:
-    @staticmethod
-    async def get_json(link):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(link) as resp:
-                return await resp.json()
-
-    @staticmethod
-    async def get_text(link):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(link) as resp:
-                return await resp.text()
-
-    @staticmethod
-    async def get_raw(link):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(link) as resp:
-                return await resp.read()
-            
+from thebot.utils.errors import capture_err
             
 
 @dankbot.on_inline_query()
+@capture_err
 async def inline_query_handler(client, query):
     string = query.query.lower()
     if string == "":
@@ -100,7 +90,7 @@ async def inline_query_handler(client, query):
             ],
             cache_time=1
         )
-        
+
     elif string.split()[0] == "anime":
         if len(string.split()) == 1:
             await client.answer_inline_query(query.id,
@@ -223,10 +213,7 @@ async def inline_query_handler(client, query):
         else:
             buttons = None
         image = info.replace('anilist.co/anime/', 'img.anili.st/media/')
-        if image:
-            thumb = image
-        else:
-            thumb = None
+        thumb = image or None
         ms_g = f"**Name**: **{response['title']['romaji']}**(`{response['title']['native']}`)\n**ID**: `{response['id']}`"
         if response['nextAiringEpisode']:
             airing_time = response['nextAiringEpisode']['timeUntilAiring'] * 1000

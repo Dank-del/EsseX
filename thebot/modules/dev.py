@@ -8,6 +8,8 @@ from thebot import dankbot, ALLOWED_USERS
 from thebot.sql import chats_db
 from pyrogram import filters
 
+from thebot.utils.errors import capture_err
+
 
 async def aexec(code, client, message):
     exec(
@@ -18,6 +20,7 @@ async def aexec(code, client, message):
 
 
 @dankbot.on_message(filters.user(ALLOWED_USERS) & filters.command("eval"))
+@capture_err
 async def evaluate(client, message):
     status_message = await message.reply_text("`Running ...`")
     try:
@@ -69,6 +72,7 @@ async def evaluate(client, message):
 
 
 @dankbot.on_message(filters.user(ALLOWED_USERS) & filters.command("term"))
+@capture_err
 async def terminal(client, message):
     if len(message.text.split()) == 1:
         await message.reply("Usage: `/term echo owo`")

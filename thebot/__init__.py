@@ -16,5 +16,6 @@ DB_URI = Config.DB_URI
 ALLOWED_USERS = [
         895373440
     ]
+LOG_CHANNEL = Config.LOG_CHANNEL
 
-dankbot = Client('dank', api_id=API_ID, api_hash=API_HASH, bot_token=TOKEN)
+dankbot = Client(':memory:', api_id=API_ID, api_hash=API_HASH, bot_token=TOKEN)

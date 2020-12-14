@@ -7,6 +7,8 @@ from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from thebot import dankbot
 
+from thebot.utils.errors import capture_err
+
 def shorten(description, info='anilist.co'):
     ms_g = ""
     if len(description) > 700:
@@ -156,6 +158,7 @@ url = 'https://graphql.anilist.co'
 
 
 @dankbot.on_message(~filters.me & filters.command('airinfo', prefixes='/'), group=8)
+@capture_err
 async def anime_airing(_client, message):
     search_str = message.text.split(' ', 1)
     if len(search_str) == 1:
@@ -175,6 +178,7 @@ async def anime_airing(_client, message):
 
 
 @dankbot.on_message(~filters.me & filters.command('animeinfo', prefixes='/'), group=8)
+@capture_err
 async def anime_search(client, message):
     search = message.text.split(' ', 1)
     if len(search) == 1:
@@ -211,7 +215,7 @@ async def anime_search(client, message):
                     InlineKeyboardButton("Trailer 🎬", url=trailer)]
                     ]
         else:
-           buttons = [
+            buttons = [
                     [InlineKeyboardButton("More Info", url=info)]
                     ]
         if image:
@@ -226,6 +230,7 @@ async def anime_search(client, message):
 
 
 @dankbot.on_message(~filters.me & filters.command('charinfo', prefixes='/'), group=8)
+@capture_err
 async def character_search(client, message):
     search = message.text.split(' ', 1)
     if len(search) == 1:
@@ -245,10 +250,11 @@ async def character_search(client, message):
             image = image.get('large')
             await message.reply_photo(image, caption=ms_g)
         else:
-            await edrep(message, text=ms_g)
+            await message.reply(ms_g)
 
 
 @dankbot.on_message(~filters.me & filters.command('mangainfo', prefixes='/'), group=8)
+@capture_err
 async def manga_search(client, message):
     search = message.text.split(' ', 1)
     if len(search) == 1:
@@ -286,7 +292,7 @@ async def manga_search(client, message):
                 await message.reply_photo(image, caption=ms_g)
             except:
                 ms_g += f" [〽️]({image})"
-                await edrep(message, text=ms_g)
+                await message.reply(ms_g)
         else:
-            await edrep(message, text=ms_g)
+            await message.reply(ms_g)
 

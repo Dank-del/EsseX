@@ -1,8 +1,14 @@
 from pyrogram import  idle, Client
 from thebot import dankbot
-from thebot.modules import start, help, dev, inline, whatanime, anilist
+from thebot.modules import ALL_MODULES
 
-from thebot.modules import nhentai
+import importlib
 
-dankbot.start()
-idle()
+for module in ALL_MODULES:
+    imported_module = importlib.import_module("thebot.modules." + module)
+    importlib.reload(imported_module)
+
+
+if __name__ == "__main__":
+    dankbot.start()
+    idle()
