@@ -11,6 +11,8 @@ from datetime import timedelta
 from pyrogram import Client, filters
 from urllib.parse import quote as urlencode
 
+from thebot.utils.errors import capture_err
+
 def format_bytes(size):
     size = int(size)
     # 2**10 = 1024
@@ -39,7 +41,10 @@ def calculate_eta(current, total, start_time):
     return ', '.join(thing)
 
 session = aiohttp.ClientSession()
+
+
 @dankbot.on_message(~filters.me & filters.command('wa', prefixes='/'), group=8)
+@capture_err
 async def whatanime(client, message):
     media = message.photo or message.animation or message.video or message.document
     if not media:
@@ -108,7 +113,10 @@ async def whatanime(client, message):
                         await reply.reply_text('Cannot send preview :/')
             await asyncio.gather(reply.edit_text(text, disable_web_page_preview=True), _send_preview())
 
+
 progress_callback_data = {}
+
+
 async def progress_callback(current, total, reply):
     message_identifier = (reply.chat.id, reply.message_id)
     last_edit_time, prevtext, start_time = progress_callback_data.get(message_identifier, (0, None, time.time()))

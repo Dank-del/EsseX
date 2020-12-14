@@ -2,7 +2,11 @@ from thebot import dankbot
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
+from thebot.utils.errors import capture_err
+
+
 @dankbot.on_message(filters.command('start'))
+@capture_err
 async def start(_, message):
    if len(message.text.split()) >= 2:
       suckz = message.text.split()[1]

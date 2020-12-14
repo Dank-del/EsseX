@@ -9,12 +9,16 @@ from pyrogram.types import (InlineKeyboardMarkup,
 
 from thebot import dankbot, telegraph
 
+from thebot.utils.errors import capture_err
+
+
 @dankbot.on_message(~filters.me & filters.command('nhentai', prefixes='/'), group=8)
+@capture_err
 async def nhentai(client, message):
     query = message.text.split(" ")[1]
     title, tags, artist, total_pages, post_url, cover_image = nhentai_data(query)
     await message.reply_text(
-         f"<code>{title}</code>\n\n<b>Tags:</b>\n{tags}\n<b>Artists:</b>\n{artist}\n<b>Pages:</b>\n{total_pages}",
+        f"<code>{title}</code>\n\n<b>Tags:</b>\n{tags}\n<b>Artists:</b>\n{artist}\n<b>Pages:</b>\n{total_pages}",
         reply_markup=InlineKeyboardMarkup(
             [
                 [
@@ -28,6 +32,7 @@ async def nhentai(client, message):
     )
 
 @dankbot.on_inline_query(filters.regex(r'^nhentai (\d+)$'))
+@capture_err
 async def inline_nhentai(client, inline_query):
     query = int(inline_query.matches[0].group(1))
     n_title, tags, artist, total_pages, post_url, cover_image = nhentai_data(query)
@@ -65,8 +70,6 @@ def nhentai_data(noombers):
     tags = ""
     artist = ''
     total_pages = res['num_pages']
-    post_content = ""
-
     extensions = {
         'j':'jpg',
         'p':'png',
@@ -88,8 +91,7 @@ def nhentai_data(noombers):
         if i["type"]=="artist":
             artist=f"{i['name']} "
 
-    for link in links:
-        post_content+=f"<img src={link}><br>"
+    post_content = "".join(f"<img src={link}><br>" for link in links)
 
     post = telegraph.create_page(
         f"{title}",
