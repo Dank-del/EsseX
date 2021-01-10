@@ -2,6 +2,18 @@
 # EsseX
 A telegram bot to fetch anime, character and manga info.
 
+[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
+[![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://GitHub.com/Skuzzy_xD/)</br>
+
+![Python Version](https://img.shields.io/badge/python-3.8-green?style=for-the-badge&logo=appveyor)
+![Issues](https://img.shields.io/github/issues/Dank-del/EsseX?style=for-the-badge&logo=appveyor)
+![Forks](https://img.shields.io/github/forks/Dank-del/EsseX?style=for-the-badge&logo=appveyor)
+![Stars](https://img.shields.io/github/stars/Dank-del/EsseX?style=for-the-badge&logo=appveyor)
+![LICENSE](https://img.shields.io/github/license/Dank-del/EsseX?style=for-the-badge&logo=appveyor)
+![Contributors](https://img.shields.io/github/contributors/Dank-del/EsseX?style=for-the-badge&logo=appveyor)
+![Repo Size](https://img.shields.io/github/repo-size/Dank-del/EsseX?style=for-the-badge&logo=appveyor)</br>
+
+
 *Credits*
 - me (lol)
 - [DragSama](https://github.com/DragSama) for anime query and formatting idea.
